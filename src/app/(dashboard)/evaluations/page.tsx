@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef } from "react";
 import Link from "next/link";
 import {
   ClipboardList,
@@ -6,26 +9,49 @@ import {
   Clock,
   FileText,
 } from "lucide-react";
+import { useGSAP } from "@gsap/react";
 import { mockEvaluations } from "@/data/mock-data";
+import { revealContent, staggerList } from "@/lib/animations";
 
 const statusConfig = {
   active: { label: "Activa", className: "bg-emerald-50 text-emerald-700" },
   draft: { label: "Borrador", className: "bg-amber-50 text-amber-700" },
-  archived: { label: "Archivada", className: "bg-gray-100 text-gray-500" },
+  archived: { label: "Archivada", className: "bg-slate-100 text-gray-500" },
 };
 
 export default function EvaluationsPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      if (!containerRef.current) return;
+      revealContent(containerRef.current.querySelector("[data-header]"));
+      staggerList(
+        containerRef.current.querySelectorAll("[data-stat]"),
+        { stagger: 0.1 }
+      );
+      revealContent(containerRef.current.querySelector("[data-table]"), {
+        delay: 0.2,
+      });
+      staggerList(
+        containerRef.current.querySelectorAll("[data-row]"),
+        { stagger: 0.06, y: 12 }
+      );
+    },
+    { scope: containerRef }
+  );
+
   return (
-    <div>
+    <div ref={containerRef}>
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
+      <div data-header className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Evaluaciones</h1>
           <p className="mt-1 text-sm text-gray-500">
             Administra las evaluaciones técnicas de tu organización
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg bg-[#1b4965] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#153e56]">
+        <button className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-dark hover:scale-[1.02] active:scale-100">
           <Plus className="h-4 w-4" />
           Nueva evaluación
         </button>
@@ -33,10 +59,10 @@ export default function EvaluationsPage() {
 
       {/* Stats */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div data-stat className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1b4965]/10">
-              <ClipboardList className="h-5 w-5 text-[#1b4965]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-light">
+              <ClipboardList className="h-5 w-5 text-primary" />
             </div>
             <div>
               <p className="text-2xl font-semibold text-gray-900">
@@ -46,7 +72,7 @@ export default function EvaluationsPage() {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div data-stat className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
               <FileText className="h-5 w-5 text-emerald-600" />
@@ -59,7 +85,7 @@ export default function EvaluationsPage() {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div data-stat className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50">
               <Clock className="h-5 w-5 text-amber-600" />
@@ -75,11 +101,11 @@ export default function EvaluationsPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div data-table className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr className="border-b border-slate-200">
                 <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Evaluación
                 </th>
@@ -100,13 +126,14 @@ export default function EvaluationsPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {mockEvaluations.map((evaluation) => {
                 const status = statusConfig[evaluation.status];
                 return (
                   <tr
                     key={evaluation.id}
-                    className="transition-colors hover:bg-gray-50"
+                    data-row
+                    className="transition-colors duration-200 hover:bg-slate-50"
                   >
                     <td className="px-6 py-4">
                       <div>
@@ -119,7 +146,7 @@ export default function EvaluationsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-gray-600">
                         {evaluation.category}
                       </span>
                     </td>
@@ -139,7 +166,7 @@ export default function EvaluationsPage() {
                     <td className="px-6 py-4 text-right">
                       <Link
                         href={`/evaluations/${evaluation.id}`}
-                        className="inline-flex items-center rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                        className="inline-flex items-center rounded-md p-1.5 text-gray-400 transition-all duration-200 hover:bg-slate-100 hover:text-gray-600 hover:scale-110"
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </Link>

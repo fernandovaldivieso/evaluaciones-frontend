@@ -5,7 +5,7 @@ import { Mail, Lock, LogIn } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-semibold text-gray-900">Iniciar sesión</h1>
         <p className="mt-2 text-sm text-gray-500">
@@ -24,7 +24,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               placeholder="tu@email.com"
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1b4965] focus:outline-none focus:ring-1 focus:ring-[#1b4965]"
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
@@ -39,14 +39,14 @@ export default function LoginPage() {
               id="password"
               type="password"
               placeholder="••••••••"
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1b4965] focus:outline-none focus:ring-1 focus:ring-[#1b4965]"
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
 
         <button
           type="submit"
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1b4965] py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#153e56]"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-dark hover:scale-[1.01] active:scale-100"
         >
           <LogIn className="h-4 w-4" />
           Iniciar sesión
@@ -55,7 +55,7 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-gray-500">
         ¿No tienes cuenta?{" "}
-        <Link href="/register" className="font-medium text-[#1b4965] hover:underline">
+        <Link href="/register" className="font-medium text-primary hover:underline">
           Regístrate
         </Link>
       </p>

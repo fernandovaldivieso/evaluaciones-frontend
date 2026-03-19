@@ -27,13 +27,13 @@ export default function QuestionCard({
   };
 
   return (
-    <div className="w-full max-w-2xl rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="w-full max-w-2xl rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <span className="text-sm font-medium text-gray-400">
           Pregunta {questionNumber} de {totalQuestions}
         </span>
-        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-gray-500">
           {question.type === "multiple-choice" ? "Opción múltiple" : "Respuesta abierta"}
         </span>
       </div>
@@ -52,16 +52,16 @@ export default function QuestionCard({
               <button
                 key={index}
                 onClick={() => onAnswer(question.id, option)}
-                className={`flex w-full items-center gap-3 rounded-lg border px-4 py-3.5 text-left text-sm transition-all ${
+                className={`flex w-full items-center gap-3 rounded-lg border px-4 py-3.5 text-left text-sm transition-all duration-200 hover:scale-[1.01] ${
                   isSelected
-                    ? "border-[#1b4965] bg-[#1b4965]/5 text-[#1b4965]"
-                    : "border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+                    ? "border-primary bg-primary-light text-primary"
+                    : "border-slate-200 text-gray-700 hover:border-slate-300 hover:bg-slate-50"
                 }`}
               >
                 <span
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${
                     isSelected
-                      ? "border-[#1b4965] bg-[#1b4965] text-white"
+                      ? "border-primary bg-primary text-white"
                       : "border-gray-300 text-gray-400"
                   }`}
                 >
@@ -79,12 +79,12 @@ export default function QuestionCard({
             onChange={(e) => setTextAnswer(e.target.value)}
             placeholder="Escribe tu respuesta aquí..."
             rows={5}
-            className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1b4965] focus:outline-none focus:ring-1 focus:ring-[#1b4965]"
+            className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <button
             onClick={handleTextSubmit}
             disabled={!textAnswer.trim()}
-            className="rounded-lg bg-[#1b4965] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#153e56] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-dark hover:scale-[1.02] active:scale-100 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Guardar respuesta
           </button>

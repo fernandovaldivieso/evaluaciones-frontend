@@ -60,7 +60,7 @@ export default function ExamPage() {
         <button
           onClick={prevQuestion}
           disabled={isFirst}
-          className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-slate-50 hover:scale-[1.02] active:scale-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <ChevronLeft className="h-4 w-4" />
           Anterior
@@ -76,9 +76,9 @@ export default function ExamPage() {
                 key={q.id}
                 className={`h-2 w-2 rounded-full transition-all ${
                   isCurrent
-                    ? "h-2.5 w-2.5 bg-[#1b4965]"
+                    ? "h-2.5 w-2.5 bg-primary"
                     : isAnswered
-                      ? "bg-[#1b4965]/40"
+                      ? "bg-primary/40"
                       : "bg-gray-300"
                 }`}
               />
@@ -87,14 +87,14 @@ export default function ExamPage() {
         </div>
 
         {isLast ? (
-          <button className="flex items-center gap-1.5 rounded-lg bg-[#1b4965] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#153e56]">
+          <button className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-accent-dark hover:scale-[1.02] active:scale-100">
             <Send className="h-4 w-4" />
             Finalizar
           </button>
         ) : (
           <button
             onClick={nextQuestion}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-slate-50 hover:scale-[1.02] active:scale-100"
           >
             Siguiente
             <ChevronRight className="h-4 w-4" />

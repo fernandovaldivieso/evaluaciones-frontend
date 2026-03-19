@@ -1,5 +1,10 @@
+"use client";
+
+import { useRef } from "react";
 import { Trophy, Medal, TrendingUp } from "lucide-react";
+import { useGSAP } from "@gsap/react";
 import { mockResults } from "@/data/mock-data";
+import { revealContent, staggerList } from "@/lib/animations";
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -9,9 +14,9 @@ function formatTime(seconds: number): string {
 
 function getScoreColor(score: number): string {
   if (score >= 90) return "text-emerald-600";
-  if (score >= 75) return "text-[#1b4965]";
+  if (score >= 75) return "text-primary";
   if (score >= 60) return "text-amber-600";
-  return "text-red-600";
+  return "text-accent";
 }
 
 function getMedalIcon(position: number) {
@@ -30,6 +35,7 @@ function getMedalIcon(position: number) {
 
 export default function RankingPage() {
   const sortedResults = [...mockResults].sort((a, b) => b.score - a.score);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const avgScore =
     sortedResults.length > 0
@@ -39,10 +45,29 @@ export default function RankingPage() {
         )
       : 0;
 
+  useGSAP(
+    () => {
+      if (!containerRef.current) return;
+      revealContent(containerRef.current.querySelector("[data-header]"));
+      staggerList(
+        containerRef.current.querySelectorAll("[data-stat]"),
+        { stagger: 0.1 }
+      );
+      revealContent(containerRef.current.querySelector("[data-table]"), {
+        delay: 0.2,
+      });
+      staggerList(
+        containerRef.current.querySelectorAll("[data-row]"),
+        { stagger: 0.06, y: 12 }
+      );
+    },
+    { scope: containerRef }
+  );
+
   return (
-    <div>
+    <div ref={containerRef}>
       {/* Header */}
-      <div className="mb-8">
+      <div data-header className="mb-8">
         <h1 className="text-2xl font-semibold text-gray-900">
           Ranking de Candidatos
         </h1>
@@ -53,10 +78,10 @@ export default function RankingPage() {
 
       {/* Stats */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div data-stat className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1b4965]/10">
-              <Trophy className="h-5 w-5 text-[#1b4965]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-light">
+              <Trophy className="h-5 w-5 text-primary" />
             </div>
             <div>
               <p className="text-2xl font-semibold text-gray-900">
@@ -66,7 +91,7 @@ export default function RankingPage() {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div data-stat className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
               <TrendingUp className="h-5 w-5 text-emerald-600" />
@@ -79,7 +104,7 @@ export default function RankingPage() {
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div data-stat className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50">
               <TrendingUp className="h-5 w-5 text-amber-600" />
@@ -93,11 +118,11 @@ export default function RankingPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div data-table className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr className="border-b border-slate-200">
                 <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Pos.
                 </th>
@@ -118,11 +143,12 @@ export default function RankingPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {sortedResults.map((result, index) => (
                 <tr
                   key={result.id}
-                  className="transition-colors hover:bg-gray-50"
+                  data-row
+                  className="transition-colors duration-200 hover:bg-slate-50"
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center">
@@ -140,7 +166,7 @@ export default function RankingPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-gray-600">
                       {result.evaluationTitle}
                     </span>
                   </td>
