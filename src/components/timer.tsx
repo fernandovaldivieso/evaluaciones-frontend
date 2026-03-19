@@ -23,7 +23,6 @@ export default function Timer() {
 
   const isLowTime = timeRemaining <= 60;
 
-  // Pulse animation when time is low
   useGSAP(
     () => {
       if (isLowTime && timerRef.current) {
@@ -45,7 +44,7 @@ export default function Timer() {
       className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-mono font-semibold transition-colors duration-300 ${
         isLowTime
           ? "border-accent/30 bg-accent-light text-accent"
-          : "border-slate-200 bg-white text-gray-700"
+          : "border-border bg-surface text-gray-700"
       }`}
     >
       <Clock className={`h-4 w-4 ${isLowTime ? "text-accent" : "text-gray-400"}`} />

@@ -1,26 +1,73 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
+/* ─── Design Tokens ──────────────────────────────────────────────────────── */
 @theme inline {
-  /* Primary (Blue) - navigation, trust actions, main CTA */
-  --color-primary: #1b4965;
+  /* Primary (Blue 30%) — navigation, trust actions, main CTAs */
+  --color-primary: #123D5D;
   --color-primary-dark: #153e56;
   --color-primary-light: #e8f0f5;
+  --color-primary-50: #f0f6fa;
 
-  /* Accent (Red) - alerts, critical buttons, low-time timer */
+  /* Accent (Red 10%) — alerts, critical buttons, low-time timer */
   --color-accent: #c0392b;
   --color-accent-dark: #a93226;
   --color-accent-light: #fdecea;
 
-  /* Keep backward compat alias */
-  --color-brand: #1b4965;
-  --color-brand-dark: #153e56;
+  /* Neutral (White/Gray 60%) — backgrounds, borders, text */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f8fafc;
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
 
-  --font-outfit: "Outfit", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* Semantic */
+  --color-success: #16a34a;
+  --color-success-light: #f0fdf4;
+  --color-warning: #d97706;
+  --color-warning-light: #fffbeb;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+
+  /* The font-family CSS var is set by next/font in layout.tsx */
+  --font-outfit: var(--font-family-outfit, "Outfit", ui-sans-serif, system-ui, -apple-system, sans-serif);
+}
+
+/* ─── Base ────────────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: #f8fafc; /* slate-50 */
+  background: var(--color-surface-alt);
   color: #1a1a2e;
   font-family: var(--font-outfit);
+}
+
+::selection {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+/* Focus ring — consistent across all interactive elements */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── Scrollbar (Webkit) ──────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

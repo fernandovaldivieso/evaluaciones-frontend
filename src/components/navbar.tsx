@@ -1,10 +1,38 @@
 "use client";
 
-import { Bell, Search, User } from "lucide-react";
+import { useRef } from "react";
+import { Bell, Search, LogOut } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import { revealContent } from "@/lib/animations";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Navbar() {
+  const headerRef = useRef<HTMLElement>(null);
+  const { user, logout } = useAuth();
+
+  useGSAP(
+    () => {
+      if (headerRef.current) {
+        revealContent(headerRef.current, { y: -12, duration: 0.4 });
+      }
+    },
+    { scope: headerRef }
+  );
+
+  const initials = user?.nombre
+    ? user.nombre
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "U";
+
   return (
-    <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6">
+    <header
+      ref={headerRef}
+      className="hidden items-center justify-between rounded-2xl border border-border bg-surface px-5 py-3 shadow-[var(--shadow-card)] md:flex"
+    >
       {/* Search */}
       <div className="flex flex-1 items-center">
         <div className="relative w-full max-w-md">
@@ -12,23 +40,35 @@ export default function Navbar() {
           <input
             type="text"
             placeholder="Buscar evaluaciones, candidatos..."
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full rounded-xl border border-border bg-surface-alt py-2 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-3">
-        <button className="relative rounded-lg p-2 text-gray-400 transition-all duration-200 hover:scale-105 hover:bg-slate-100 hover:text-gray-600">
+      <div className="flex items-center gap-2">
+        <button className="relative rounded-xl p-2 text-gray-400 transition-all duration-200 hover:bg-primary-50 hover:text-primary">
           <Bell className="h-5 w-5" />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" />
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent ring-2 ring-surface" />
         </button>
-        <div className="h-6 w-px bg-slate-200" />
-        <button className="flex items-center gap-2 rounded-lg p-1.5 transition-all duration-200 hover:bg-slate-100">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-medium text-white">
-            <User className="h-4 w-4" />
+        <div className="mx-1 h-6 w-px bg-border-light" />
+        <div className="flex items-center gap-2.5 rounded-xl bg-surface-alt px-3 py-1.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-dark text-[11px] font-semibold text-white">
+            {initials}
           </div>
-          <span className="text-sm font-medium text-gray-700">Admin</span>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium leading-tight text-gray-700">
+              {user?.nombre || "Usuario"}
+            </span>
+            <span className="text-[11px] leading-tight text-gray-400">{user?.rol || ""}</span>
+          </div>
+        </div>
+        <button
+          onClick={logout}
+          className="rounded-xl p-2 text-gray-400 transition-all duration-200 hover:bg-accent-light hover:text-accent"
+          title="Cerrar sesión"
+        >
+          <LogOut className="h-4 w-4" />
         </button>
       </div>
     </header>

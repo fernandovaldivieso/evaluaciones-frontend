@@ -4,13 +4,13 @@ import Sidebar from "@/components/sidebar";
 import Navbar from "@/components/navbar";
 import ProtectedRoute from "@/components/protected-route";
 
-export default function DashboardLayout({
+export default function CandidateLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={["Candidato"]}>
       <div className="flex h-screen bg-surface-alt">
         <Sidebar />
         <div className="flex flex-1 flex-col gap-2 overflow-hidden pr-2 pt-2 pb-2">

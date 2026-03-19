@@ -1,13 +1,23 @@
 import { create } from "zustand";
-import type { ExamAnswer, Question } from "@/types";
+import type { PreguntaDetalleDto, SeccionDetalleDto } from "@/types";
+
+interface ExamAnswer {
+  preguntaId: string;
+  respuesta: string;
+  opcionSeleccionadaId?: string;
+}
 
 interface ExamState {
-  questions: Question[];
+  sesionId: string | null;
+  preguntas: PreguntaDetalleDto[];
+  secciones: SeccionDetalleDto[];
   currentIndex: number;
   answers: ExamAnswer[];
   timeRemaining: number;
   isRunning: boolean;
-  setQuestions: (questions: Question[]) => void;
+  setSesionId: (id: string) => void;
+  setPreguntas: (preguntas: PreguntaDetalleDto[]) => void;
+  setSecciones: (secciones: SeccionDetalleDto[]) => void;
   setTimeRemaining: (seconds: number) => void;
   tick: () => void;
   start: () => void;
@@ -15,18 +25,25 @@ interface ExamState {
   goToQuestion: (index: number) => void;
   nextQuestion: () => void;
   prevQuestion: () => void;
-  submitAnswer: (questionId: string, answer: string) => void;
+  submitAnswer: (preguntaId: string, respuesta: string, opcionSeleccionadaId?: string) => void;
+  getAnswer: (preguntaId: string) => ExamAnswer | undefined;
   reset: () => void;
 }
 
 export const useExamStore = create<ExamState>((set, get) => ({
-  questions: [],
+  sesionId: null,
+  preguntas: [],
+  secciones: [],
   currentIndex: 0,
   answers: [],
   timeRemaining: 0,
   isRunning: false,
 
-  setQuestions: (questions) => set({ questions }),
+  setSesionId: (id) => set({ sesionId: id }),
+
+  setPreguntas: (preguntas) => set({ preguntas }),
+
+  setSecciones: (secciones) => set({ secciones }),
 
   setTimeRemaining: (seconds) => set({ timeRemaining: seconds }),
 
@@ -44,15 +61,15 @@ export const useExamStore = create<ExamState>((set, get) => ({
   pause: () => set({ isRunning: false }),
 
   goToQuestion: (index) => {
-    const { questions } = get();
-    if (index >= 0 && index < questions.length) {
+    const { preguntas } = get();
+    if (index >= 0 && index < preguntas.length) {
       set({ currentIndex: index });
     }
   },
 
   nextQuestion: () => {
-    const { currentIndex, questions } = get();
-    if (currentIndex < questions.length - 1) {
+    const { currentIndex, preguntas } = get();
+    if (currentIndex < preguntas.length - 1) {
       set({ currentIndex: currentIndex + 1 });
     }
   },
@@ -64,21 +81,28 @@ export const useExamStore = create<ExamState>((set, get) => ({
     }
   },
 
-  submitAnswer: (questionId, answer) => {
+  submitAnswer: (preguntaId, respuesta, opcionSeleccionadaId) => {
     const { answers } = get();
-    const existing = answers.findIndex((a) => a.questionId === questionId);
+    const existing = answers.findIndex((a) => a.preguntaId === preguntaId);
+    const newAnswer: ExamAnswer = { preguntaId, respuesta, opcionSeleccionadaId };
     if (existing >= 0) {
       const updated = [...answers];
-      updated[existing] = { questionId, answer };
+      updated[existing] = newAnswer;
       set({ answers: updated });
     } else {
-      set({ answers: [...answers, { questionId, answer }] });
+      set({ answers: [...answers, newAnswer] });
     }
+  },
+
+  getAnswer: (preguntaId) => {
+    return get().answers.find((a) => a.preguntaId === preguntaId);
   },
 
   reset: () =>
     set({
-      questions: [],
+      sesionId: null,
+      preguntas: [],
+      secciones: [],
       currentIndex: 0,
       answers: [],
       timeRemaining: 0,

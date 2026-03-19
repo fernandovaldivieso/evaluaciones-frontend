@@ -1,198 +1,168 @@
 "use client";
 
-import { useRef } from "react";
-import { Trophy, Medal, TrendingUp } from "lucide-react";
-import { useGSAP } from "@gsap/react";
-import { mockResults } from "@/data/mock-data";
-import { revealContent, staggerList } from "@/lib/animations";
-
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}m ${s}s`;
-}
+import { useEffect, useState, useCallback } from "react";
+import { Trophy, Medal, TrendingUp, Loader2 } from "lucide-react";
+import PageHeader from "@/components/page-header";
+import { toast } from "sonner";
+import { resultadosService } from "@/services/resultados.service";
+import { procesosService } from "@/services/procesos.service";
+import type { RankingProcesoDto, ProcesoDto } from "@/types";
+import ProtectedRoute from "@/components/protected-route";
 
 function getScoreColor(score: number): string {
-  if (score >= 90) return "text-emerald-600";
+  if (score >= 90) return "text-success";
   if (score >= 75) return "text-primary";
-  if (score >= 60) return "text-amber-600";
+  if (score >= 60) return "text-warning";
   return "text-accent";
 }
 
 function getMedalIcon(position: number) {
-  if (position === 0)
-    return <Medal className="h-5 w-5 text-amber-500" />;
-  if (position === 1)
-    return <Medal className="h-5 w-5 text-gray-400" />;
-  if (position === 2)
-    return <Medal className="h-5 w-5 text-amber-700" />;
-  return (
-    <span className="flex h-5 w-5 items-center justify-center text-xs font-semibold text-gray-400">
-      {position + 1}
-    </span>
-  );
+  if (position === 1) return <Medal className="h-5 w-5 text-amber-500" />;
+  if (position === 2) return <Medal className="h-5 w-5 text-gray-400" />;
+  if (position === 3) return <Medal className="h-5 w-5 text-amber-700" />;
+  return <span className="flex h-5 w-5 items-center justify-center text-xs font-semibold text-gray-400">{position}</span>;
 }
 
 export default function RankingPage() {
-  const sortedResults = [...mockResults].sort((a, b) => b.score - a.score);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [procesos, setProcesos] = useState<ProcesoDto[]>([]);
+  const [selectedProcesoId, setSelectedProcesoId] = useState("");
+  const [ranking, setRanking] = useState<RankingProcesoDto | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingRanking, setLoadingRanking] = useState(false);
 
-  const avgScore =
-    sortedResults.length > 0
-      ? Math.round(
-          sortedResults.reduce((sum, r) => sum + r.score, 0) /
-            sortedResults.length
-        )
-      : 0;
+  const loadProcesos = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await procesosService.getAll();
+      if (res.success && res.data) {
+        setProcesos(res.data);
+        if (res.data.length > 0) setSelectedProcesoId(res.data[0].id);
+      }
+    } catch {
+      toast.error("Error al cargar procesos");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  useGSAP(
-    () => {
-      if (!containerRef.current) return;
-      revealContent(containerRef.current.querySelector("[data-header]"));
-      staggerList(
-        containerRef.current.querySelectorAll("[data-stat]"),
-        { stagger: 0.1 }
-      );
-      revealContent(containerRef.current.querySelector("[data-table]"), {
-        delay: 0.2,
-      });
-      staggerList(
-        containerRef.current.querySelectorAll("[data-row]"),
-        { stagger: 0.06, y: 12 }
-      );
-    },
-    { scope: containerRef }
-  );
+  useEffect(() => { loadProcesos(); }, [loadProcesos]);
+
+  const loadRanking = useCallback(async () => {
+    if (!selectedProcesoId) return;
+    setLoadingRanking(true);
+    try {
+      const res = await resultadosService.getRanking(selectedProcesoId);
+      if (res.success && res.data) setRanking(res.data);
+      else setRanking(null);
+    } catch {
+      setRanking(null);
+    } finally {
+      setLoadingRanking(false);
+    }
+  }, [selectedProcesoId]);
+
+  useEffect(() => { loadRanking(); }, [loadRanking]);
+
+  const candidates = ranking?.ranking ?? [];
+  const avgScore = candidates.length > 0
+    ? Math.round(candidates.reduce((sum, c) => sum + c.scoreTotal, 0) / candidates.length)
+    : 0;
 
   return (
-    <div ref={containerRef}>
-      {/* Header */}
-      <div data-header className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Ranking de Candidatos
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Resultados ordenados por puntuación
-        </p>
-      </div>
+    <ProtectedRoute allowedRoles={["Admin", "Evaluador"]}>
+      <div>
+        <PageHeader
+          breadcrumbs={[{ label: "Inicio", href: "/dashboard" }, { label: "Ranking" }]}
+          title="Ranking de Candidatos"
+          subtitle="Resultados ordenados por puntuación"
+          action={
+            <select
+              value={selectedProcesoId}
+              onChange={(e) => setSelectedProcesoId(e.target.value)}
+              className="rounded-xl border border-border bg-surface-alt px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            >
+              {procesos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            </select>
+          }
+        />
 
-      {/* Stats */}
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div data-stat className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-light">
-              <Trophy className="h-5 w-5 text-primary" />
+        {/* Stats */}
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-light"><Trophy className="h-5 w-5 text-primary" /></div>
+              <div><p className="text-2xl font-semibold text-gray-900">{candidates.length}</p><p className="text-sm text-gray-500">Candidatos</p></div>
             </div>
-            <div>
-              <p className="text-2xl font-semibold text-gray-900">
-                {sortedResults.length}
-              </p>
-              <p className="text-sm text-gray-500">Total resultados</p>
+          </div>
+          <div className="rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success-light"><TrendingUp className="h-5 w-5 text-success" /></div>
+              <div><p className="text-2xl font-semibold text-gray-900">{candidates[0]?.scoreTotal.toFixed(1) ?? 0}%</p><p className="text-sm text-gray-500">Mejor puntuación</p></div>
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning-light"><TrendingUp className="h-5 w-5 text-warning" /></div>
+              <div><p className="text-2xl font-semibold text-gray-900">{avgScore}%</p><p className="text-sm text-gray-500">Promedio</p></div>
             </div>
           </div>
         </div>
-        <div data-stat className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
-              <TrendingUp className="h-5 w-5 text-emerald-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-semibold text-gray-900">
-                {sortedResults[0]?.score ?? 0}%
-              </p>
-              <p className="text-sm text-gray-500">Mejor puntuación</p>
-            </div>
-          </div>
-        </div>
-        <div data-stat className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50">
-              <TrendingUp className="h-5 w-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-semibold text-gray-900">{avgScore}%</p>
-              <p className="text-sm text-gray-500">Promedio general</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Table */}
-      <div data-table className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-200">
-                <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Pos.
-                </th>
-                <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Candidato
-                </th>
-                <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Evaluación
-                </th>
-                <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Puntuación
-                </th>
-                <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Tiempo
-                </th>
-                <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Fecha
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {sortedResults.map((result, index) => (
-                <tr
-                  key={result.id}
-                  data-row
-                  className="transition-colors duration-200 hover:bg-slate-50"
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      {getMedalIcon(index)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {result.candidateName}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {result.candidateEmail}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-                      {result.evaluationTitle}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`text-sm font-semibold ${getScoreColor(result.score)}`}
-                    >
-                      {result.score}%
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {formatTime(result.timeSpent)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(result.completedAt).toLocaleDateString("es-ES", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {loading || loadingRanking ? (
+          <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+        ) : candidates.length === 0 ? (
+          <div className="flex h-64 flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface">
+            <Trophy className="h-12 w-12 text-gray-300" />
+            <p className="text-gray-500">No hay resultados para este proceso</p>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-border bg-surface shadow-[var(--shadow-card)]">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border bg-primary-50">
+                    <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Pos.</th>
+                    <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Candidato</th>
+                    <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Puntuación</th>
+                    <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Fortalezas</th>
+                    <th className="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Brechas</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-light">
+                  {candidates.map((c) => (
+                    <tr key={c.candidatoId} className="hover:bg-primary-50/50">
+                      <td className="px-6 py-4">{getMedalIcon(c.posicion)}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{c.candidatoNombre}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm font-semibold ${getScoreColor(c.scoreTotal)}`}>{c.scoreTotal.toFixed(1)}%</span>
+                          <div className="h-2 w-20 rounded-full bg-border-light">
+                            <div className="h-full rounded-full bg-primary" style={{ width: `${c.scoreTotal}%` }} />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {c.fortalezas ? (
+                          <div className="flex flex-wrap gap-1">
+                            {c.fortalezas.split(",").map((f) => <span key={f.trim()} className="rounded bg-success-light px-2 py-0.5 text-xs text-success">{f.trim()}</span>)}
+                          </div>
+                        ) : <span className="text-xs text-gray-400">—</span>}
+                      </td>
+                      <td className="px-6 py-4">
+                        {c.brechas ? (
+                          <div className="flex flex-wrap gap-1">
+                            {c.brechas.split(",").map((b) => <span key={b.trim()} className="rounded bg-accent-light px-2 py-0.5 text-xs text-accent">{b.trim()}</span>)}
+                          </div>
+                        ) : <span className="text-xs text-gray-400">—</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
