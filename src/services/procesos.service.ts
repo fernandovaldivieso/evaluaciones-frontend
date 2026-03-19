@@ -7,6 +7,7 @@ import type {
   UpdateProcesoDto,
   AsignarCandidatosDto,
   AsignarEvaluacionesDto,
+  EvaluacionDto,
 } from "@/types";
 
 export const procesosService = {
@@ -37,6 +38,11 @@ export const procesosService = {
 
   async asignarEvaluaciones(procesoId: string, data: AsignarEvaluacionesDto) {
     const res = await apiClient.post<ApiResponse>(`/procesos/${procesoId}/evaluaciones`, data);
+    return res.data;
+  },
+
+  async getMisEvaluaciones() {
+    const res = await apiClient.get<ApiResponse<EvaluacionDto[]>>("/procesos/mis-evaluaciones");
     return res.data;
   },
 };

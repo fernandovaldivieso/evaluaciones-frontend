@@ -81,6 +81,13 @@ export default function ExamPage() {
           return;
         }
 
+        // If session is already finalized, redirect back
+        if (sesionRes.data.estado === 3) {
+          toast.info("Esta evaluación ya fue completada");
+          router.push("/mis-sesiones");
+          return;
+        }
+
         const sesion = sesionRes.data;
         setSesionId(sesionId!);
 
@@ -116,8 +123,14 @@ export default function ExamPage() {
         }
 
         start();
-      } catch {
-        toast.error("Error al cargar la evaluación");
+      } catch (err: unknown) {
+        const axiosErr = err as { response?: { data?: { message?: string }; status?: number } };
+        if (axiosErr.response?.status === 403) {
+          toast.error("No tienes permiso para acceder a esta sesión");
+        } else {
+          toast.error("Error al cargar la evaluación");
+        }
+        router.push("/mis-sesiones");
       } finally {
         setLoading(false);
       }

@@ -45,7 +45,7 @@ describe("Sidebar", () => {
     // Inner card should have rounded corners
     const card = desktop?.querySelector("div");
     expect(card?.className).toContain("rounded-2xl");
-    expect(card?.className).toContain("border-border");
+    expect(card?.className).toContain("bg-primary");
   });
 
   it("shows user name and avatar in footer", () => {
@@ -60,7 +60,7 @@ describe("Sidebar", () => {
     render(<Sidebar />);
     const logoutBtns = screen.getAllByText("Cerrar sesión");
     const btn = logoutBtns[0]?.closest("button");
-    expect(btn?.className).toContain("hover:bg-accent-light");
-    expect(btn?.className).toContain("hover:text-accent");
+    expect(btn?.className).toContain("hover:bg-white/10");
+    expect(btn?.className).toContain("hover:text-white");
   });
 });

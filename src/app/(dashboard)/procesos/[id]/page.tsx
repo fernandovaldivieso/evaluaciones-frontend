@@ -55,9 +55,10 @@ export default function ProcesoDetallePage() {
 
   const openAsignarCandidatos = async () => {
     try {
-      const res = await usuariosService.getAll();
+      const res = await usuariosService.getCandidatos();
       if (res.success && res.data) {
-        setAllUsuarios(res.data.filter((u) => u.rol === "Candidato" && u.activo));
+        const asignadoIds = new Set(proceso?.candidatos.map((c) => c.id) ?? []);
+        setAllUsuarios(res.data.filter((u) => !asignadoIds.has(u.id)));
       }
     } catch { /* ignore */ }
     setSelectedCandidatos(new Set());
@@ -67,7 +68,10 @@ export default function ProcesoDetallePage() {
   const openAsignarEvaluaciones = async () => {
     try {
       const res = await evaluacionesService.getAll();
-      if (res.success && res.data) setAllEvaluaciones(res.data.filter((e) => e.activa));
+      if (res.success && res.data) {
+        const asignadaIds = new Set(proceso?.evaluaciones.map((e) => e.id) ?? []);
+        setAllEvaluaciones(res.data.filter((e) => e.activa && !asignadaIds.has(e.id)));
+      }
     } catch { /* ignore */ }
     setSelectedEvaluaciones(new Set());
     setShowAsignarEvaluaciones(true);

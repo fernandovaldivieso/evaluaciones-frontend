@@ -26,4 +26,9 @@ export const usuariosService = {
     const res = await apiClient.delete<ApiResponse>(`/usuarios/${id}`);
     return res.data;
   },
+
+  async getCandidatos() {
+    const res = await apiClient.get<ApiResponse<UsuarioDto[]>>("/usuarios/candidatos");
+    return res.data;
+  },
 };

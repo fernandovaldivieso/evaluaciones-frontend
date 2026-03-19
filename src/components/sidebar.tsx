@@ -73,64 +73,62 @@ export default function Sidebar() {
     : "U";
 
   const sidebarContent = (
-    <div className="flex h-full flex-col">
-      {/* Header — gradient brand area */}
-      <div className="relative overflow-hidden rounded-t-2xl bg-gradient-to-br from-primary to-primary-dark px-4 py-5">
-        {/* Decorative circles */}
-        <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/5" />
-        <div className="absolute -bottom-2 -left-3 h-14 w-14 rounded-full bg-white/5" />
-
-        <div className="relative flex items-center justify-between">
-          {!collapsed && (
-            <Link
-              href="/"
-              className="flex items-center gap-2.5 text-white"
-              onClick={closeMobile}
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 text-sm font-bold backdrop-blur-sm">
-                E
-              </div>
-              <span className="text-lg font-bold tracking-tight">
-                EvalSystem
-              </span>
-            </Link>
-          )}
-          {collapsed && (
-            <Link
-              href="/"
-              className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 text-sm font-bold text-white backdrop-blur-sm"
-              onClick={closeMobile}
-            >
-              E
-            </Link>
-          )}
-          {/* Desktop collapse toggle */}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="hidden h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/70 transition-all hover:bg-white/20 hover:text-white md:inline-flex"
-            aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
-          >
-            {collapsed ? (
-              <ChevronRight className="h-3.5 w-3.5" />
-            ) : (
-              <ChevronLeft className="h-3.5 w-3.5" />
-            )}
-          </button>
-          {/* Mobile close button */}
-          <button
+    <div className="flex h-full flex-col bg-primary text-white">
+      {/* Header — logo area (replace content with your logo) */}
+      <div className="flex items-center justify-between px-4 py-5">
+        {!collapsed && (
+          <Link
+            href="/"
+            className="flex items-center gap-2.5"
             onClick={closeMobile}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/70 transition-all hover:bg-white/20 hover:text-white md:hidden"
-            aria-label="Cerrar menú"
           >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
+            {/* ← Replace this block with <Image src="/logo.svg" … /> */}
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 text-sm font-bold">
+              E
+            </div>
+            <span className="text-lg font-bold tracking-tight">
+              EvalSystem
+            </span>
+          </Link>
+        )}
+        {collapsed && (
+          <Link
+            href="/"
+            className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 text-sm font-bold"
+            onClick={closeMobile}
+          >
+            E
+          </Link>
+        )}
+        {/* Desktop collapse toggle */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="hidden h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/60 transition-all hover:bg-white/20 hover:text-white md:inline-flex"
+          aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
+        >
+          {collapsed ? (
+            <ChevronRight className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronLeft className="h-3.5 w-3.5" />
+          )}
+        </button>
+        {/* Mobile close button */}
+        <button
+          onClick={closeMobile}
+          className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/60 transition-all hover:bg-white/20 hover:text-white md:hidden"
+          aria-label="Cerrar menú"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
       </div>
+
+      {/* Divider */}
+      <div className="mx-4 border-t border-white/10" />
 
       {/* Navigation */}
       <nav ref={navRef} className="flex-1 space-y-1 px-3 py-4">
         {!collapsed && (
-          <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+          <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/40">
             Menú
           </p>
         )}
@@ -143,15 +141,13 @@ export default function Sidebar() {
               onClick={closeMobile}
               className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? "bg-primary text-white shadow-md shadow-primary/25"
-                  : "text-gray-500 hover:bg-primary-50 hover:text-primary"
+                  ? "bg-white/15 text-white shadow-sm"
+                  : "text-white/60 hover:bg-white/10 hover:text-white"
               }`}
               title={collapsed ? item.label : undefined}
             >
               <item.icon
-                className={`h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-                  isActive ? "text-white" : ""
-                }`}
+                className="h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110"
               />
               {(!collapsed || mobileOpen) && <span>{item.label}</span>}
             </Link>
@@ -160,23 +156,23 @@ export default function Sidebar() {
       </nav>
 
       {/* User + Logout footer */}
-      <div className="border-t border-border-light px-3 pb-4 pt-3">
+      <div className="border-t border-white/10 px-3 pb-4 pt-3">
         {!collapsed && user && (
-          <div className="mb-3 flex items-center gap-3 rounded-xl bg-surface-alt px-3 py-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-dark text-xs font-semibold text-white">
+          <div className="mb-3 flex items-center gap-3 rounded-xl bg-white/10 px-3 py-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-xs font-semibold">
               {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-gray-800">
+              <p className="truncate text-sm font-medium text-white">
                 {user.nombre}
               </p>
-              <p className="text-[11px] text-gray-400">{user.rol}</p>
+              <p className="text-[11px] text-white/50">{user.rol}</p>
             </div>
           </div>
         )}
         <button
           onClick={logout}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-500 transition-all duration-200 hover:bg-accent-light hover:text-accent"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/60 transition-all duration-200 hover:bg-white/10 hover:text-white"
           title={collapsed ? "Cerrar sesión" : undefined}
         >
           <LogOut className="h-[18px] w-[18px] shrink-0" />
@@ -212,7 +208,7 @@ export default function Sidebar() {
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="m-2 flex h-[calc(100%-16px)] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-elevated)]">
+        <div className="m-2 flex h-[calc(100%-16px)] flex-col overflow-hidden rounded-2xl bg-primary shadow-[var(--shadow-elevated)]">
           {sidebarContent}
         </div>
       </aside>
@@ -224,7 +220,7 @@ export default function Sidebar() {
         }`}
       >
         <div
-          className={`m-2 flex h-[calc(100vh-16px)] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-elevated)] transition-all duration-300 ${
+          className={`m-2 flex h-[calc(100vh-16px)] flex-col overflow-hidden rounded-2xl bg-primary shadow-[var(--shadow-elevated)] transition-all duration-300 ${
             collapsed ? "w-16" : "w-64"
           }`}
         >
