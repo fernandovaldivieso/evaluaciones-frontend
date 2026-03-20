@@ -8,6 +8,7 @@ import type {
   AsignarCandidatosDto,
   AsignarEvaluacionesDto,
   EvaluacionDto,
+  SesionProcesoDto,
 } from "@/types";
 
 export const procesosService = {
@@ -43,6 +44,11 @@ export const procesosService = {
 
   async getMisEvaluaciones() {
     const res = await apiClient.get<ApiResponse<EvaluacionDto[]>>("/procesos/mis-evaluaciones");
+    return res.data;
+  },
+
+  async getSesionesProceso(procesoId: string) {
+    const res = await apiClient.get<ApiResponse<SesionProcesoDto[]>>(`/procesos/${procesoId}/sesiones`);
     return res.data;
   },
 };

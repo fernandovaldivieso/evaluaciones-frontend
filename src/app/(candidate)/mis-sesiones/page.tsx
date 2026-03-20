@@ -233,10 +233,13 @@ export default function MisSesionesPage() {
                     </button>
                   )}
                   {isCompleted && (
-                    <div className="flex items-center justify-center gap-1.5 rounded-xl bg-success-light/50 py-2 text-xs font-medium text-success">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      Evaluación completada
-                    </div>
+                    <button
+                      onClick={() => router.push(`/mis-sesiones/resultado/${sesion!.id}`)}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-success-light/50 py-2 text-xs font-medium text-success transition-all hover:bg-success-light"
+                    >
+                      <Trophy className="h-3.5 w-3.5" />
+                      Ver resultado
+                    </button>
                   )}
                 </div>
               </div>

@@ -3,6 +3,7 @@ import type {
   ApiResponse,
   EvaluacionDto,
   EvaluacionDetalleDto,
+  EvaluacionParaCandidatoDto,
   CreateEvaluacionDto,
   UpdateEvaluacionDto,
   SeccionDto,
@@ -26,6 +27,11 @@ export const evaluacionesService = {
 
   async getDetalle(id: string) {
     const res = await apiClient.get<ApiResponse<EvaluacionDetalleDto>>(`/evaluaciones/${id}/detalle`);
+    return res.data;
+  },
+
+  async getParaCandidato(id: string) {
+    const res = await apiClient.get<ApiResponse<EvaluacionParaCandidatoDto>>(`/evaluaciones/${id}/para-candidato`);
     return res.data;
   },
 

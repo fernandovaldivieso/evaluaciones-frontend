@@ -6,6 +6,8 @@ import type {
   ResponderPreguntaDto,
   ProgresoSesionDto,
   EvaluacionDetalleDto,
+  EvaluacionParaCandidatoDto,
+  RespuestaSesionDto,
 } from "@/types";
 
 export const sesionesService = {
@@ -44,8 +46,19 @@ export const sesionesService = {
     return res.data;
   },
 
+  async getEvaluacionParaCandidato(evaluacionId: string) {
+    const res = await apiClient.get<ApiResponse<EvaluacionParaCandidatoDto>>(`/evaluaciones/${evaluacionId}/para-candidato`);
+    return res.data;
+  },
+
+  // Mantener para compatibilidad — restringido a Admin/Evaluador en backend
   async getEvaluacionDetalle(evaluacionId: string) {
     const res = await apiClient.get<ApiResponse<EvaluacionDetalleDto>>(`/evaluaciones/${evaluacionId}/detalle`);
+    return res.data;
+  },
+
+  async getRespuestas(sesionId: string) {
+    const res = await apiClient.get<ApiResponse<RespuestaSesionDto[]>>(`/sesiones/${sesionId}/respuestas`);
     return res.data;
   },
 };

@@ -3,10 +3,10 @@
 import { useRef, useState, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
-import type { PreguntaDetalleDto } from "@/types";
+import type { PreguntaParaCandidatoDto } from "@/types";
 
 interface QuestionCardProps {
-  question: PreguntaDetalleDto;
+  question: PreguntaParaCandidatoDto;
   currentAnswer?: string;
   currentOpcionId?: string;
   onAnswer: (preguntaId: string, respuesta: string, opcionSeleccionadaId?: string) => void;

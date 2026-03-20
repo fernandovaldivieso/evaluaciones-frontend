@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { useExamStore } from "@/store/exam-store";
-import type { PreguntaDetalleDto } from "@/types";
+import type { PreguntaParaCandidatoDto } from "@/types";
 
-const mockPreguntas: PreguntaDetalleDto[] = [
+const mockPreguntas: PreguntaParaCandidatoDto[] = [
   {
     id: "q1",
     texto: "Test question 1",
@@ -11,11 +11,10 @@ const mockPreguntas: PreguntaDetalleDto[] = [
     orden: 1,
     puntaje: 10,
     tiempoSegundos: 120,
-    explicacion: null,
     opciones: [
-      { id: "o1", texto: "A", orden: 1, esCorrecta: false },
-      { id: "o2", texto: "B", orden: 2, esCorrecta: true },
-      { id: "o3", texto: "C", orden: 3, esCorrecta: false },
+      { id: "o1", texto: "A", orden: 1 },
+      { id: "o2", texto: "B", orden: 2 },
+      { id: "o3", texto: "C", orden: 3 },
     ],
   },
   {
@@ -26,7 +25,6 @@ const mockPreguntas: PreguntaDetalleDto[] = [
     orden: 2,
     puntaje: 10,
     tiempoSegundos: 120,
-    explicacion: null,
     opciones: [],
   },
 ];

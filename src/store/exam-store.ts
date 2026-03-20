@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { PreguntaDetalleDto, SeccionDetalleDto } from "@/types";
+import type { PreguntaParaCandidatoDto, SeccionParaCandidatoDto } from "@/types";
 
 interface ExamAnswer {
   preguntaId: string;
@@ -9,15 +9,15 @@ interface ExamAnswer {
 
 interface ExamState {
   sesionId: string | null;
-  preguntas: PreguntaDetalleDto[];
-  secciones: SeccionDetalleDto[];
+  preguntas: PreguntaParaCandidatoDto[];
+  secciones: SeccionParaCandidatoDto[];
   currentIndex: number;
   answers: ExamAnswer[];
   timeRemaining: number;
   isRunning: boolean;
   setSesionId: (id: string) => void;
-  setPreguntas: (preguntas: PreguntaDetalleDto[]) => void;
-  setSecciones: (secciones: SeccionDetalleDto[]) => void;
+  setPreguntas: (preguntas: PreguntaParaCandidatoDto[]) => void;
+  setSecciones: (secciones: SeccionParaCandidatoDto[]) => void;
   setTimeRemaining: (seconds: number) => void;
   tick: () => void;
   start: () => void;

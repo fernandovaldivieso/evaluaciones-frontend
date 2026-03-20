@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "next/navigation";
-import { BarChart3, TrendingUp, TrendingDown, Sparkles, Loader2 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { BarChart3, TrendingUp, TrendingDown, Sparkles, Loader2, ClipboardList } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { toast } from "sonner";
 import { resultadosService } from "@/services/resultados.service";
 import type { ResultadoDto } from "@/types";
 import ProtectedRoute from "@/components/protected-route";
+import Markdown from "react-markdown";
 
 interface SeccionScore {
   Obtenido: number;
@@ -17,6 +18,7 @@ interface SeccionScore {
 
 export default function ResultadoSesionPage() {
   const { sesionId } = useParams<{ sesionId: string }>();
+  const router = useRouter();
   const [resultado, setResultado] = useState<ResultadoDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
@@ -85,6 +87,15 @@ export default function ResultadoSesionPage() {
           title={`Resultado: ${resultado.evaluacionNombre}`}
           subtitle={`Candidato: ${resultado.candidatoNombre}`}
           backHref="/ranking"
+          action={
+            <button
+              onClick={() => router.push(`/resultados/${sesionId}/respuestas`)}
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3.5 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-surface-alt"
+            >
+              <ClipboardList className="h-4 w-4" />
+              Revisar respuestas
+            </button>
+          }
         />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -154,7 +165,9 @@ export default function ResultadoSesionPage() {
               <Sparkles className="h-5 w-5 text-primary" />
               <h3 className="text-sm font-semibold text-primary">Recomendación</h3>
             </div>
-            <p className="text-sm text-gray-700 leading-relaxed">{resultado.recomendacionIA}</p>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              <Markdown>{resultado.recomendacionIA}</Markdown>
+            </p>
           </div>
         )}
       </div>

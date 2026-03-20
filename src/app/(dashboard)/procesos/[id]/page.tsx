@@ -1,23 +1,25 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "next/navigation";
-import { Plus, Loader2, X, Users, ClipboardList } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { Plus, Loader2, X, Users, ClipboardList, Activity } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { toast } from "sonner";
 import { procesosService } from "@/services/procesos.service";
 import { usuariosService } from "@/services/usuarios.service";
 import { evaluacionesService } from "@/services/evaluaciones.service";
 import { ESTADOS_PROCESO } from "@/utils/constants";
-import type { ProcesoDetalleDto, UsuarioDto, EvaluacionDto, UpdateProcesoDto } from "@/types";
+import type { ProcesoDetalleDto, UsuarioDto, EvaluacionDto, UpdateProcesoDto, SesionProcesoDto } from "@/types";
 import ProtectedRoute from "@/components/protected-route";
 
 export default function ProcesoDetallePage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
 
   const [proceso, setProceso] = useState<ProcesoDetalleDto | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"candidatos" | "evaluaciones">("candidatos");
+  const [tab, setTab] = useState<"candidatos" | "evaluaciones" | "sesiones">("candidatos");
+  const [sesiones, setSesiones] = useState<SesionProcesoDto[]>([]);
 
   // Assignment modals
   const [showAsignarCandidatos, setShowAsignarCandidatos] = useState(false);
@@ -42,6 +44,18 @@ export default function ProcesoDetallePage() {
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
+
+  const loadSesiones = useCallback(async () => {
+    if (!id) return;
+    try {
+      const res = await procesosService.getSesionesProceso(id);
+      if (res.success && res.data) setSesiones(res.data);
+    } catch { /* ignore */ }
+  }, [id]);
+
+  useEffect(() => {
+    if (tab === "sesiones") loadSesiones();
+  }, [tab, loadSesiones]);
 
   const handleEstadoChange = async (nuevoEstado: number) => {
     if (!id) return;
@@ -145,6 +159,9 @@ export default function ProcesoDetallePage() {
           <button onClick={() => setTab("evaluaciones")} className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === "evaluaciones" ? "border-primary text-primary" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
             <ClipboardList className="inline h-4 w-4 mr-1" /> Evaluaciones ({proceso.evaluaciones.length})
           </button>
+          <button onClick={() => setTab("sesiones")} className={`px-4 py-2 text-sm font-medium border-b-2 ${tab === "sesiones" ? "border-primary text-primary" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
+            <Activity className="inline h-4 w-4 mr-1" /> Sesiones
+          </button>
         </div>
 
         {/* Content */}
@@ -194,6 +211,66 @@ export default function ProcesoDetallePage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "sesiones" && (
+          <div>
+            {sesiones.length === 0 ? (
+              <div className="flex h-32 items-center justify-center rounded-xl border border-border bg-surface text-gray-500 text-sm">No hay sesiones iniciadas aún</div>
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-border bg-surface">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-surface-alt text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      <th className="px-4 py-3">Candidato</th>
+                      <th className="px-4 py-3">Evaluación</th>
+                      <th className="px-4 py-3">Estado</th>
+                      <th className="px-4 py-3">Score</th>
+                      <th className="px-4 py-3">Fecha</th>
+                      <th className="px-4 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border-light">
+                    {sesiones.map((s) => {
+                      const pct = s.scorePorcentaje != null ? `${s.scorePorcentaje.toFixed(0)}%` : "—";
+                      const estadoColor = s.estado === 3 ? "bg-success-light text-success" : s.estado === 2 ? "bg-primary-light text-primary" : s.estado === 4 ? "bg-accent-light text-accent" : "bg-border-light text-gray-500";
+                      return (
+                        <tr key={s.sesionId} className="hover:bg-surface-alt/50">
+                          <td className="px-4 py-3">
+                            <p className="font-medium text-gray-900">{s.candidatoNombre}</p>
+                            <p className="text-xs text-gray-400">{s.candidatoEmail}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="text-gray-700">{s.evaluacionNombre}</p>
+                            <p className="text-xs text-gray-400">{s.tecnologiaNombre}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${estadoColor}`}>{s.estadoNombre}</span>
+                          </td>
+                          <td className="px-4 py-3 font-medium">
+                            {s.scoreObtenido != null ? `${s.scoreObtenido}/${s.scoreMaximo} (${pct})` : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-gray-400">
+                            {s.fechaInicio ? new Date(s.fechaInicio).toLocaleDateString("es-ES", { day: "numeric", month: "short" }) : "—"}
+                          </td>
+                          <td className="px-4 py-3">
+                            {s.tieneResultado && (
+                              <button
+                                onClick={() => router.push(`/resultados/${s.sesionId}`)}
+                                className="rounded-lg bg-primary-light px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
+                              >
+                                Ver resultado
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

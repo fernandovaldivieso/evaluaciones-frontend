@@ -328,3 +328,81 @@ export interface RankingProcesoDto {
   procesoNombre: string;
   ranking: ComparacionCandidatoDto[];
 }
+export interface RevisarRespuestaDto {
+  puntajeObtenido: number;
+  comentario?: string;
+}
+
+// --- Evaluación vista candidato (sin respuestas correctas) ---
+export interface OpcionParaCandidatoDto {
+  id: string;
+  texto: string;
+  orden: number;
+}
+export interface PreguntaParaCandidatoDto {
+  id: string;
+  texto: string;
+  tipo: number;
+  tipoNombre: string;
+  puntaje: number;
+  tiempoSegundos: number;
+  orden: number;
+  opciones: OpcionParaCandidatoDto[] | null;
+}
+export interface SeccionParaCandidatoDto {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  orden: number;
+  preguntas: PreguntaParaCandidatoDto[];
+}
+export interface EvaluacionParaCandidatoDto {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  nivel: number;
+  nivelNombre: string;
+  tiempoLimiteMinutos: number;
+  tecnologiaId: string;
+  tecnologiaNombre: string;
+  secciones: SeccionParaCandidatoDto[];
+  createdAt: string;
+}
+
+// --- Respuesta detallada (revisión reclutador) ---
+export interface RespuestaSesionDto {
+  id: string;
+  preguntaId: string;
+  preguntaTexto: string;
+  tipoPregunta: number;
+  tipoPreguntaNombre: string;
+  respuesta: string;
+  tiempoRespuestaSegundos: number;
+  esCorrecta: boolean | null;
+  puntajeObtenido: number | null;
+  puntajeMaximo: number;
+  opcionSeleccionadaId: string | null;
+  opcionSeleccionadaTexto: string | null;
+  comentarioRevisor: string | null;
+  createdAt: string;
+}
+
+// --- Sesión dentro de un proceso (dashboard reclutador) ---
+export interface SesionProcesoDto {
+  sesionId: string;
+  candidatoId: string;
+  candidatoNombre: string;
+  candidatoEmail: string;
+  evaluacionId: string;
+  evaluacionNombre: string;
+  tecnologiaNombre: string;
+  estado: number;
+  estadoNombre: string;
+  fechaInicio: string | null;
+  fechaFin: string | null;
+  scoreObtenido: number | null;
+  scoreMaximo: number;
+  scorePorcentaje: number | null;
+  tieneResultado: boolean;
+  createdAt: string;
+}

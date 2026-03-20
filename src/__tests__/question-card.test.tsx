@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import QuestionCard from "@/components/question-card";
-import type { PreguntaDetalleDto } from "@/types";
+import type { PreguntaParaCandidatoDto } from "@/types";
 
-const multipleChoiceQuestion: PreguntaDetalleDto = {
+const multipleChoiceQuestion: PreguntaParaCandidatoDto = {
   id: "q1",
   texto: "¿Cuál es la capital de Francia?",
   tipo: 1,
@@ -11,16 +11,15 @@ const multipleChoiceQuestion: PreguntaDetalleDto = {
   orden: 1,
   puntaje: 10,
   tiempoSegundos: 120,
-  explicacion: null,
   opciones: [
-    { id: "o1", texto: "Madrid", orden: 1, esCorrecta: false },
-    { id: "o2", texto: "París", orden: 2, esCorrecta: true },
-    { id: "o3", texto: "Londres", orden: 3, esCorrecta: false },
-    { id: "o4", texto: "Berlín", orden: 4, esCorrecta: false },
+    { id: "o1", texto: "Madrid", orden: 1 },
+    { id: "o2", texto: "París", orden: 2 },
+    { id: "o3", texto: "Londres", orden: 3 },
+    { id: "o4", texto: "Berlín", orden: 4 },
   ],
 };
 
-const textQuestion: PreguntaDetalleDto = {
+const textQuestion: PreguntaParaCandidatoDto = {
   id: "q2",
   texto: "Explica el concepto de closures en JavaScript.",
   tipo: 2,
@@ -28,7 +27,6 @@ const textQuestion: PreguntaDetalleDto = {
   orden: 1,
   puntaje: 10,
   tiempoSegundos: 120,
-  explicacion: null,
   opciones: [],
 };
 

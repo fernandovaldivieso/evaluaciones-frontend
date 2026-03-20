@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import QuestionCard from "@/components/question-card";
 import { useExamStore } from "@/store/exam-store";
 import { sesionesService } from "@/services/sesiones.service";
-import type { PreguntaDetalleDto } from "@/types";
+import { startConnection, joinSesion, leaveSesion, stopConnection, getSesionConnection } from "@/lib/signalr-client";
+import type { PreguntaParaCandidatoDto } from "@/types";
 
 export default function ExamPage() {
   const searchParams = useSearchParams();
@@ -91,24 +92,19 @@ export default function ExamPage() {
         const sesion = sesionRes.data;
         setSesionId(sesionId!);
 
-        // Get evaluation detail
-        const detalleRes = await sesionesService.getEvaluacionDetalle(sesion.evaluacionId);
+        // Get evaluation detail (safe endpoint — no correct answers)
+        const detalleRes = await sesionesService.getEvaluacionParaCandidato(sesion.evaluacionId);
         if (!detalleRes.success || !detalleRes.data) {
           toast.error("Error al cargar evaluación");
           return;
         }
 
         const detalle = detalleRes.data;
-        // Flatten questions across sections (no esCorrecta/explicacion for candidate)
-        const allPreguntas: PreguntaDetalleDto[] = [];
+        // Flatten questions across sections
+        const allPreguntas: PreguntaParaCandidatoDto[] = [];
         for (const sec of detalle.secciones.sort((a, b) => a.orden - b.orden)) {
           for (const preg of sec.preguntas.sort((a, b) => a.orden - b.orden)) {
-            // Strip sensitive data for candidate view
-            allPreguntas.push({
-              ...preg,
-              explicacion: null,
-              opciones: preg.opciones?.map((o) => ({ ...o, esCorrecta: false })) ?? null,
-            });
+            allPreguntas.push(preg);
           }
         }
         setPreguntas(allPreguntas);
@@ -142,6 +138,46 @@ export default function ExamPage() {
       // Don't reset on unmount — user might navigate back
     };
   }, [sesionId, router, setSesionId, setPreguntas, setTimeRemaining, start]);
+
+  // SignalR: connect and listen for expiration/warning events
+  useEffect(() => {
+    if (!sesionId) return;
+
+    let mounted = true;
+
+    async function connectSignalR() {
+      try {
+        await startConnection();
+        await joinSesion(sesionId!);
+
+        const conn = getSesionConnection();
+
+        conn.on("TiempoAdvertencia", (data: { tiempoRestanteSegundos: number; mensaje: string }) => {
+          if (mounted) {
+            toast.warning(data.mensaje, { duration: 10000 });
+          }
+        });
+
+        conn.on("SesionExpirada", (data: { sesionId: string; mensaje: string }) => {
+          if (mounted) {
+            toast.error(data.mensaje, { duration: 8000 });
+            reset();
+            router.push("/mis-sesiones");
+          }
+        });
+      } catch {
+        // SignalR connection failed — exam still works via polling/timer
+      }
+    }
+
+    connectSignalR();
+
+    return () => {
+      mounted = false;
+      leaveSesion(sesionId!).catch(() => {});
+      stopConnection().catch(() => {});
+    };
+  }, [sesionId, reset, router]);
 
   // Reset timer on question change
   useEffect(() => {
