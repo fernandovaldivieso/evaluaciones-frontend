@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import {
   Loader2, MessageSquare, CheckCircle2, Code, FileText,
-  Save, ChevronDown, ChevronUp,
+  Save, ChevronDown, ChevronUp, Sparkles,
 } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { toast } from "sonner";
@@ -12,9 +12,11 @@ import { sesionesService } from "@/services/sesiones.service";
 import { resultadosService } from "@/services/resultados.service";
 import type { RespuestaSesionDto } from "@/types";
 import { TIPOS_PREGUNTA } from "@/utils/constants";
+import { useRouter } from "next/navigation";
 
 export default function RespuestasReviewPage() {
   const { sesionId } = useParams<{ sesionId: string }>();
+  const router = useRouter();
   const [respuestas, setRespuestas] = useState<RespuestaSesionDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -22,6 +24,7 @@ export default function RespuestasReviewPage() {
   const [puntaje, setPuntaje] = useState(0);
   const [comentario, setComentario] = useState("");
   const [saving, setSaving] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
 
   const load = useCallback(async () => {
     if (!sesionId) return;
@@ -78,6 +81,19 @@ export default function RespuestasReviewPage() {
   };
 
   const needsReview = (r: RespuestaSesionDto) => r.tipoPregunta === 2 || r.tipoPregunta === 3;
+
+  const handleAnalizar = async () => {
+    if (!sesionId) return;
+    setAnalyzing(true);
+    try {
+      const res = await resultadosService.analizar(sesionId);
+      if (res.success) {
+        toast.success("Análisis generado correctamente");
+        router.push(`/resultados/${sesionId}`);
+      } else toast.error(res.message || "Error al analizar");
+    } catch { toast.error("Error al generar análisis"); }
+    finally { setAnalyzing(false); }
+  };
 
   const getTypeIcon = (tipo: number) => {
     if (tipo === 3) return <Code className="h-4 w-4" />;
@@ -257,6 +273,28 @@ export default function RespuestasReviewPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Analyze CTA */}
+      {respuestas.length > 0 && (
+        <div className="mt-6 flex items-center justify-between rounded-xl border border-primary/20 bg-primary-50 p-5">
+          <div>
+            <p className="text-sm font-semibold text-gray-900">¿Listo para generar el análisis?</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {pendingReview > 0
+                ? `Aún hay ${pendingReview} respuestas pendientes de revisión manual`
+                : "Todas las respuestas han sido revisadas"}
+            </p>
+          </div>
+          <button
+            onClick={handleAnalizar}
+            disabled={analyzing}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-50"
+          >
+            {analyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {analyzing ? "Analizando..." : "Generar análisis"}
+          </button>
         </div>
       )}
     </div>

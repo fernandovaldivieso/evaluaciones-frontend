@@ -137,8 +137,24 @@ export default function MisSesionesPage() {
           </div>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map(({ evaluacion: ev, sesion }) => {
+        <>
+          {/* Group by technology */}
+          {(() => {
+            const groups = new Map<string, EvalWithSession[]>();
+            for (const item of items) {
+              const tech = item.evaluacion.tecnologiaNombre || "Otras";
+              const arr = groups.get(tech) || [];
+              arr.push(item);
+              groups.set(tech, arr);
+            }
+            return Array.from(groups.entries()).map(([tech, groupItems]) => (
+              <div key={tech} className="mb-8 last:mb-0">
+                <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900">
+                  <span className="rounded-md bg-primary-light px-2.5 py-1 text-xs font-medium text-primary">{tech}</span>
+                  <span className="text-xs font-normal text-gray-400">{groupItems.length} {groupItems.length === 1 ? "evaluación" : "evaluaciones"}</span>
+                </h2>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {groupItems.map(({ evaluacion: ev, sesion }) => {
             const status = getStatusConfig(sesion);
             const StatusIcon = status.icon;
             const isCompleted = sesion?.estado === 3;
@@ -246,6 +262,10 @@ export default function MisSesionesPage() {
             );
           })}
         </div>
+      </div>
+            ));
+          })()}
+        </>
       )}
     </div>
   );

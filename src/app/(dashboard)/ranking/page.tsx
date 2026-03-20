@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Trophy, Medal, TrendingUp, Loader2 } from "lucide-react";
+import { Trophy, Medal, TrendingUp, Loader2, AlertCircle } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { toast } from "sonner";
 import { resultadosService } from "@/services/resultados.service";
 import { procesosService } from "@/services/procesos.service";
 import type { RankingProcesoDto, ProcesoDto } from "@/types";
 import ProtectedRoute from "@/components/protected-route";
+import { useRouter } from "next/navigation";
 
 function getScoreColor(score: number): string {
   if (score >= 90) return "text-success";
@@ -24,6 +25,7 @@ function getMedalIcon(position: number) {
 }
 
 export default function RankingPage() {
+  const router = useRouter();
   const [procesos, setProcesos] = useState<ProcesoDto[]>([]);
   const [selectedProcesoId, setSelectedProcesoId] = useState("");
   const [ranking, setRanking] = useState<RankingProcesoDto | null>(null);
@@ -55,6 +57,7 @@ export default function RankingPage() {
       if (res.success && res.data) setRanking(res.data);
       else setRanking(null);
     } catch {
+      toast.error("Error al cargar ranking");
       setRanking(null);
     } finally {
       setLoadingRanking(false);
@@ -110,10 +113,25 @@ export default function RankingPage() {
 
         {loading || loadingRanking ? (
           <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-        ) : candidates.length === 0 ? (
-          <div className="flex h-64 flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface">
+        ) : procesos.length === 0 ? (
+          <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-border bg-surface">
             <Trophy className="h-12 w-12 text-gray-300" />
-            <p className="text-gray-500">No hay resultados para este proceso</p>
+            <p className="text-sm font-medium text-gray-700">No hay procesos creados</p>
+            <p className="text-xs text-gray-400">Crea un proceso y asigna candidatos para ver el ranking</p>
+          </div>
+        ) : candidates.length === 0 ? (
+          <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-border bg-surface">
+            <AlertCircle className="h-12 w-12 text-gray-300" />
+            <div className="text-center">
+              <p className="text-sm font-medium text-gray-700">No hay resultados analizados para este proceso</p>
+              <p className="text-xs text-gray-400 mt-1">Los candidatos deben completar sus evaluaciones y luego debes analizar sus sesiones</p>
+            </div>
+            <button
+              onClick={() => router.push(`/procesos/${selectedProcesoId}`)}
+              className="mt-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark"
+            >
+              Ir al proceso
+            </button>
           </div>
         ) : (
           <div className="rounded-xl border border-border bg-surface shadow-[var(--shadow-card)]">

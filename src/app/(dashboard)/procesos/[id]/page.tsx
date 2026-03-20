@@ -2,12 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Plus, Loader2, X, Users, ClipboardList, Activity } from "lucide-react";
+import { Plus, Loader2, X, Users, ClipboardList, Activity, Sparkles, Eye, FileSearch } from "lucide-react";
 import PageHeader from "@/components/page-header";
 import { toast } from "sonner";
 import { procesosService } from "@/services/procesos.service";
 import { usuariosService } from "@/services/usuarios.service";
 import { evaluacionesService } from "@/services/evaluaciones.service";
+import { resultadosService } from "@/services/resultados.service";
 import { ESTADOS_PROCESO } from "@/utils/constants";
 import type { ProcesoDetalleDto, UsuarioDto, EvaluacionDto, UpdateProcesoDto, SesionProcesoDto } from "@/types";
 import ProtectedRoute from "@/components/protected-route";
@@ -29,6 +30,7 @@ export default function ProcesoDetallePage() {
   const [selectedCandidatos, setSelectedCandidatos] = useState<Set<string>>(new Set());
   const [selectedEvaluaciones, setSelectedEvaluaciones] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -257,14 +259,44 @@ export default function ProcesoDetallePage() {
                             {s.fechaInicio ? new Date(s.fechaInicio).toLocaleDateString("es-ES", { day: "numeric", month: "short" }) : "—"}
                           </td>
                           <td className="px-4 py-3">
+                            <div className="flex gap-2">
+                            {s.estado === 3 && !s.tieneResultado && (
+                              <>
+                                <button
+                                  onClick={() => router.push(`/resultados/${s.sesionId}/respuestas`)}
+                                  className="inline-flex items-center gap-1 rounded-lg bg-surface-alt px-3 py-1 text-xs font-medium text-gray-600 hover:bg-border-light"
+                                >
+                                  <FileSearch className="h-3 w-3" />
+                                  Revisar
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    setAnalyzingId(s.sesionId);
+                                    try {
+                                      const res = await resultadosService.analizar(s.sesionId);
+                                      if (res.success) { toast.success("Análisis generado"); loadSesiones(); }
+                                      else toast.error(res.message || "Error al analizar");
+                                    } catch { toast.error("Error al generar análisis"); }
+                                    finally { setAnalyzingId(null); }
+                                  }}
+                                  disabled={analyzingId === s.sesionId}
+                                  className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary-dark disabled:opacity-50"
+                                >
+                                  {analyzingId === s.sesionId ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                                  Analizar
+                                </button>
+                              </>
+                            )}
                             {s.tieneResultado && (
                               <button
                                 onClick={() => router.push(`/resultados/${s.sesionId}`)}
-                                className="rounded-lg bg-primary-light px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
+                                className="inline-flex items-center gap-1 rounded-lg bg-primary-light px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20"
                               >
+                                <Eye className="h-3 w-3" />
                                 Ver resultado
                               </button>
                             )}
+                            </div>
                           </td>
                         </tr>
                       );

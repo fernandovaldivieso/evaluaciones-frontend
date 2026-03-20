@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { Mail, Lock, User, UserPlus, Loader2 } from "lucide-react";
+import { Mail, Lock, User, UserPlus, Loader2, ArrowRight } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import { staggerList } from "@/lib/animations";
 import { useAuth } from "@/hooks/use-auth";
@@ -51,21 +51,24 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-8 shadow-[var(--shadow-card)]">
+    <div className="rounded-2xl border border-border bg-surface p-8 shadow-[var(--shadow-elevated)] sm:p-10">
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Crear cuenta</h1>
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light">
+          <UserPlus className="h-6 w-6 text-primary" />
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900">Crear cuenta</h1>
         <p className="mt-2 text-sm text-gray-500">
-          Regístrate en la plataforma de evaluaciones
+          Únete a la plataforma de evaluaciones técnicas
         </p>
       </div>
 
-      <form ref={formRef} className="space-y-4" onSubmit={handleSubmit}>
+      <form ref={formRef} className="space-y-5" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-gray-700">
             Nombre completo
           </label>
           <div className="relative">
-            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
               id="name"
               type="text"
@@ -74,7 +77,7 @@ export default function RegisterPage() {
               placeholder="Juan Pérez"
               required
               maxLength={200}
-              className="w-full rounded-lg border border-border bg-surface-alt py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-xl border border-border bg-surface-alt py-3 pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>
@@ -84,7 +87,7 @@ export default function RegisterPage() {
             Correo electrónico
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
               id="email"
               type="email"
@@ -93,7 +96,7 @@ export default function RegisterPage() {
               placeholder="tu@email.com"
               required
               maxLength={256}
-              className="w-full rounded-lg border border-border bg-surface-alt py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-xl border border-border bg-surface-alt py-3 pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>
@@ -103,7 +106,7 @@ export default function RegisterPage() {
             Contraseña
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
               id="password"
               type="password"
@@ -113,7 +116,7 @@ export default function RegisterPage() {
               required
               minLength={6}
               maxLength={128}
-              className="w-full rounded-lg border border-border bg-surface-alt py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-xl border border-border bg-surface-alt py-3 pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>
@@ -126,7 +129,7 @@ export default function RegisterPage() {
             id="rol"
             value={rol}
             onChange={(e) => setRol(Number(e.target.value))}
-            className="w-full rounded-lg border border-border bg-surface-alt py-2.5 px-4 text-sm text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full rounded-xl border border-border bg-surface-alt py-3 px-4 text-sm text-gray-900 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             {Object.entries(ROLES).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
@@ -137,17 +140,33 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-dark hover:scale-[1.01] active:scale-100 disabled:opacity-50"
+          className="group flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-md shadow-primary/25 transition-all duration-200 hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
         >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
-          {loading ? "Creando cuenta..." : "Crear cuenta"}
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Creando cuenta...
+            </>
+          ) : (
+            <>
+              Crear cuenta
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </>
+          )}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-500">
-        ¿Ya tienes cuenta?{" "}
-        <Link href="/login" className="font-medium text-primary hover:underline">
-          Inicia sesión
+      <div className="mt-8 flex items-center gap-3 text-xs text-gray-400 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+        ¿Ya tienes cuenta?
+      </div>
+
+      <p className="mt-4 text-center">
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary-dark hover:underline"
+        >
+          Iniciar sesión
+          <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </p>
     </div>
